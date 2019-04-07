@@ -5,8 +5,33 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Junk_Cleaner_.NET_WPF"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="Junk Cleaner" MinWidth="400" MinHeight="500" Width="600" Height="500" Loaded="Window_Loaded">
+
+    
+    <Grid Background="Black">
+        <Menu Margin="0" VerticalAlignment="Top" Background="#FF4578FF" Foreground="White" >
+            <MenuItem Header="_Menu" >
+                <!--<Separator />
+                -->
+                <!--<MenuItem Header="_Start KSP" Click="KSP_Click" />-->
+                <!--<MenuItem Header="_Start Ckan" Click="Ckan_Click" />-->
+                <!--
+                <Separator />-->
+                <MenuItem x:Name="btnForumLink" Header="_Forums" Click="btnMenuLink_Click" />
+                <MenuItem x:Name="btnRedditLink" Header="_SubReddit" Click="btnMenuLink_Click"/>
+                <Separator />
+                <MenuItem Header="_Exit" Click="Exit_Click" />
+            </MenuItem>
+            <MenuItem Header="Help">
+                <MenuItem x:Name="btnSourceCodeLink" Header="Source Code" Click="btnMenuLink_Click"/>
+                <MenuItem x:Name="btnIssuesLink"  Header="Report an _issue" Click="btnMenuLink_Click"/>
+                <MenuItem x:Name="btnAbout"  Header="_About" Click="btnMenuLink_Click"/>
+            </MenuItem>
+            
+        </Menu>
+        <TextBlock x:Name="txtSystemInfo" Margin="15,20,15,0" TextWrapping="Wrap" Text="TextBlock" RenderTransformOrigin="0.367,-0.062" VerticalAlignment="Top" Foreground="White" FontFamily="Consolas"/>
+
+        <Frame x:Name="frmNavigate" Content="Frame" Source="/Junk-Cleaner-.NET WPF;component/Pages/pgJunkCleaner.xaml" NavigationUIVisibility="Hidden" Margin="15,80,15,15"/>
         
     </Grid>
 </Window>

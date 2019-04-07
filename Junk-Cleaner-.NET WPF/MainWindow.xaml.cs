@@ -24,5 +24,20 @@ namespace Junk_Cleaner_.NET_WPF
         {
             InitializeComponent();
         }
+
+        private void btnMenuLink_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void Exit_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            new HardwareInfo(txtSystemInfo);
+        }
     }
 }
