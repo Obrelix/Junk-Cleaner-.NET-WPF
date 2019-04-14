@@ -41,7 +41,7 @@
     <StartupObject>Junk_Cleaner_.NET_WPF.App</StartupObject>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>Graphic_Folder_Grey.ico</ApplicationIcon>
+    <ApplicationIcon>broom_icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.VisualBasic" />

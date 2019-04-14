@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Documents;
+using System.Windows.Media;
 
 namespace Junk_Cleaner_.NET_WPF
 {
@@ -24,6 +26,28 @@ namespace Junk_Cleaner_.NET_WPF
             }
             catch (Exception)
             {
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Returns a new coloured Run with text
+        /// </summary>
+        /// <param name="txt">Text to include the Run</param>
+        /// <param name="brush">Colour of Text</param>
+        /// <returns>A new coloured Run with text</returns>
+        public static Run coloredRun(string txt, Brush brush, string txtToolTip = "")
+        {
+            try
+            {
+                if (String.IsNullOrEmpty(txtToolTip))
+                    return new Run { Text = txt, Foreground = brush };
+                else
+                    return new Run { Text = txt, Foreground = brush, ToolTip = txtToolTip };
+            }
+            catch (Exception)
+            {
+
                 throw;
             }
         }

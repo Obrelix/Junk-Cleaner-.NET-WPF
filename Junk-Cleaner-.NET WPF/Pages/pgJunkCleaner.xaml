@@ -6,40 +6,72 @@
       xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
       xmlns:local="clr-namespace:Junk_Cleaner_.NET_WPF"
       mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
+      d:DesignHeight="150" d:DesignWidth="500"
+      MinHeight="150" MinWidth="500" 
+      MaxHeight="650" MaxWidth="700" 
       Title="pgJunkCleaner">
-    <Page.Resources>
-        <CollectionViewSource x:Key="lstFiles" CollectionViewType="ListCollectionView" />
-        
-    </Page.Resources>
-    
+
     <Grid>
-        <TabControl x:Name="tbProperties" HorizontalAlignment="Left" Margin="0" Width="150">
-            <TabItem Header="Windows">
-                <Grid Background="#FFE5E5E5">
-                    <Expander x:Name="expWindows1" Header="Microsoft Edge" Foreground="Black" FontFamily="Consolas" FontSize="14">
-                        <Grid>
-                        </Grid>
-                    </Expander>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="100*"/>
+        </Grid.RowDefinitions>
+        <TabControl x:Name="tbProperties" Grid.RowSpan="4" Width="165" VerticalAlignment="Top" Margin="0,5,5,0" BorderBrush="White" BorderThickness="3">
+            <TabControl.Background>
+                <SolidColorBrush Color="White" Opacity="0"/>
+            </TabControl.Background>
+            <TabItem Header="Applications" FontWeight="Bold" >
+                <Grid x:Name="grdElements" >
+                    <Grid.Background>
+                        <SolidColorBrush Color="#FF0081B2" Opacity="0.1"/>
+                    </Grid.Background>
+
                 </Grid>
             </TabItem>
-            <TabItem Header="Applications">
-                <Grid Background="#FFE5E5E5"/>
-            </TabItem>
         </TabControl>
-        <Grid Margin="175,0,0,0" VerticalAlignment="Top">
-            <ProgressBar x:Name="pgbFilesStatus" Minimum="0" Maximum="100" Value="{Binding InsertBindingHere}" FontSize="14"  />
-            <TextBlock Text="{Binding ElementName=pgbFilesStatus, Path=Value, StringFormat={}{0:0}%}" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Consolas" FontSize="14" FontWeight="Bold" />
-        </Grid>
-        <!--<ProgressBar x:Name="pgbFilesStatus" Height="20" Margin="175,25,15,0" VerticalAlignment="Top"/>-->
-        <Button x:Name="btnAnalyze" Content="Analyze" HorizontalAlignment="Left" Margin="175,0,0,0" VerticalAlignment="Bottom" Width="75" Foreground="White" BorderBrush="#FF154FE8" Background="#FF4578FF" Click="BtnAnalyze_Click" Height="35"/>
-        <Button x:Name="btnEraze" Content="Eraze" HorizontalAlignment="Right" Margin="0" VerticalAlignment="Bottom" Width="75" Background="#FF4578FF" Foreground="White" BorderBrush="#FF4578FF" Height="35"/>
-        <Expander x:Name="expDirectory" Header="" Margin="175,30,0,40" Foreground="White" FontFamily="Consolas" FontSize="14">
+        <GroupBox Header="Analisys Information" VerticalAlignment="Top" Foreground="SteelBlue" Grid.Row="1" Grid.Column="1" Margin="0,0,0,5" BorderThickness="1" BorderBrush="White" FontWeight="Bold">
+            <GroupBox.Background>
+                <SolidColorBrush Color="#FF0081B2" Opacity="0.1"/>
+            </GroupBox.Background>
             <Grid>
-                <DataGrid x:Name="grdFileInfo" > </DataGrid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid Margin="0,5,0,0" >
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock x:Name="txtProcessStatus" Text="" VerticalAlignment="Top" FontFamily="Consolas" FontSize="12" FontWeight="Bold" Foreground="White" />
+                    <ProgressBar x:Name="pgbFilesStatus" Minimum="0" Maximum="100" Value="{Binding InsertBindingHere}" FontSize="14" Grid.Column="1" Foreground="LimeGreen" />
+                    <TextBlock Text="{Binding ElementName=pgbFilesStatus, Path=Value, StringFormat={}{0:0}%}" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Consolas" FontSize="14" FontWeight="Bold" Grid.Column="1" Foreground="Black" />
+                </Grid>
+                <TextBlock x:Name="txtTotalStatus" Text="" Margin="0,5"  VerticalAlignment="Top" FontFamily="Consolas" FontSize="14" FontWeight="Bold" Foreground="#FF40FF37" HorizontalAlignment="Center" Grid.Row="1" />
             </Grid>
-        </Expander>
+        </GroupBox>
+        <!--<ProgressBar x:Name="pgbFilesStatus" Height="20" Margin="175,25,15,0" VerticalAlignment="Top"/>-->
+        <Button x:Name="btnAnalyze" Content="Analyze" HorizontalAlignment="Left" Margin="0,10,0,0" VerticalAlignment="Bottom" Width="75" Foreground="Black" BorderBrush="#FF154FE8" Background="SteelBlue" Click="BtnAnalyze_Click" Height="35" Grid.Column="1" Grid.Row="3"/>
+        <Button x:Name="btnEraze" Content="Eraze" HorizontalAlignment="Right" Margin="0,10,0,0" VerticalAlignment="Bottom" Width="75" Background="SteelBlue" Foreground="Black" BorderBrush="#FF4578FF" Height="35" Grid.Column="1" Grid.Row="3"/>
 
+       
+       
+        <Expander Header="File Analisys" Margin="0" VerticalAlignment="Top" Foreground="SteelBlue" Grid.Column="1" Grid.Row="2" FontWeight="Bold" BorderBrush="White" BorderThickness="3">
+            <ScrollViewer  VerticalScrollBarVisibility="Auto" >
+                <Grid x:Name="grdFileInfo" >
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+
+                </Grid>
+            </ScrollViewer>
+        </Expander>
 
     </Grid>
 </Page>

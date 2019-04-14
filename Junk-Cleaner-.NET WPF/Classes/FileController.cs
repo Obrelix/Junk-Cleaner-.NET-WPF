@@ -1,36 +1,37 @@
-﻿using System;
+﻿using Junk_Cleaner_.NET_WPF;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
 
 namespace Junk_Cleaner_.NET_WPF
 {
     public class FileController
     {
         private delegate void displayProgress();
-        private delegate void displayFiles();
-        private delegate void displayDir();
-        private Thread trdInitialSearch;
-        private Thread trdExecuteJob;
-        private Thread trdUpdateUI;
-        private ProgressBar progressBar;
-        private DataGrid grdDisplay;
-        private Expander expDirectory;
-        private int intStatusPrc;
-        private List<Files> files;
+        private Grid parentGrid;
         private bool isEnded;
-        private string path;
-        private long totalFiles;
-        private long totalFolders;
-        private long totalSize;
-
-        private long currentFile;
+        public long totalFiles;
+        public long totalFolders;
+        public long totalSize;
+        public long totlaTime;
+        private TextBlock txtTotalStatus;
+        private TextBlock txtProcessStatus;
+        private ProgressBar progressBar;
+        private Thread trdUpdateUI;
+        private List<FileElementUI> lstChilds;
+        private List<ErazedElements> lstElements;
 
         /// <summary>
         /// Main Constructor
@@ -39,20 +40,20 @@ namespace Junk_Cleaner_.NET_WPF
         /// <param name="files">List of files to be manipulated</param>
         /// <param name="progressBar">The ProgressBar to be updated</param>
         /// <param name="grdDisplay">The DataGrid to be updated</param>
-        public FileController(string path, List<Files> files, ProgressBar progressBar, DataGrid grdDisplay, Expander expDirectory)
+        public FileController(List<ErazedElements> lstElements,ProgressBar progressBar, Grid grdDisplay, TextBlock txtTotalStatus, TextBlock txtProcessStatus)
         {
             isEnded = false;
-            intStatusPrc = 0;
             totalFiles = 0;
             totalFolders = 0;
-            currentFile = 0;
             totalSize = 0;
-            initialSearch();
-            this.path = path;
-            this.files = files;
+            totlaTime = 0;
+            parentGrid = grdDisplay;
+            lstChilds = new List<FileElementUI>();
+            this.txtTotalStatus = txtTotalStatus;
+            this.txtProcessStatus = txtProcessStatus;
             this.progressBar = progressBar;
-            this.grdDisplay = grdDisplay;
-            this.expDirectory = expDirectory;
+            this.lstElements = lstElements;
+            grdDisplay.Children.Clear();
             SearchForFiles();
         }
 
@@ -61,13 +62,344 @@ namespace Junk_Cleaner_.NET_WPF
         {
             try
             {
-                files.Clear();
+                parentGrid.Children.Clear();
+                foreach (ErazedElements element in lstElements)
+                {
+                    if (element.IsActive)
+                    {
+                        GroupBox grb = GroupBoxInit(element.strName);
+                        foreach (string path in element.lstPaths)
+                            if (new DirectoryInfo(path).Exists)
+                                lstChilds.Add(new FileElementUI(path, progressBar, grb, element));
+
+                    }
+                }
                 trdUpdateUI = new Thread(new ThreadStart(UpdateUIRunner));
                 trdUpdateUI.IsBackground = true;
                 trdUpdateUI.Start();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        private GroupBox GroupBoxInit(string name)
+        {
+            try
+            {
+                parentGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(100, GridUnitType.Auto) });
+                GroupBox gbxElement = new GroupBox()
+                {
+                    Foreground = Brushes.Sienna,
+                    Background = new SolidColorBrush { Color = Color.FromRgb(70, 130, 180), Opacity = 0.1 },
+                    FontFamily = new FontFamily("Consolas"),
+                    FontSize = 12,
+                    Header = name,
+                    Margin = new Thickness(5,0,5,5),
+                    //BorderThickness = new Thickness(2),
+                    //BorderBrush = Brushes.White,
+                    HorizontalAlignment = HorizontalAlignment.Stretch
+                };
+                Grid grid = new Grid();
+                gbxElement.Content = grid;
+                gbxElement.SetValue(Grid.RowProperty, parentGrid.RowDefinitions.Count - 1);
+                gbxElement.MouseEnter += brdMouseEnter;
+                gbxElement.MouseLeave += brdMouseLeave;
+                parentGrid.Children.Add(gbxElement);
+                return gbxElement;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        private void brdMouseEnter(object sender, MouseEventArgs e)
+        {
+            //((GroupBox)sender).BorderBrush = Brushes.SteelBlue;
+            //((GroupBox)sender).BorderThickness = new Thickness(2);
+            //((GroupBox)sender).Margin = new Thickness(0);
+        }
+
+        private void brdMouseLeave(object sender, MouseEventArgs e)
+        {
+            //((GroupBox)sender).BorderBrush = Brushes.White;
+        }
+
+
+        private void UpdateUIRunner()
+        {
+            try
+            {
+                System.Diagnostics.Stopwatch watch = System.Diagnostics.Stopwatch.StartNew();
+                int intEndedCount = 0;
+                while (!isEnded)
+                {
+                    intEndedCount = lstChilds.Where(child => child.blnIsEnded == true).Count();
+                    isEnded = (intEndedCount == lstChilds.Count);
+                    txtTotalStatus.Dispatcher.Invoke(new displayProgress(updateTolaStatus));
+                    parentGrid.Dispatcher.Invoke(new displayProgress(HideGroupBoxes));
+                    Thread.Sleep(30);
+                }
+                watch.Stop();
+                totlaTime = watch.ElapsedMilliseconds;
+                txtTotalStatus.Dispatcher.Invoke(new displayProgress(updateTolaStatus));
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        private void HideGroupBoxes()
+        {
+            try
+            {
+                foreach(UIElement child in parentGrid.Children)
+                {
+                    GroupBox groupBox = child as GroupBox;
+                    Grid grid = groupBox.Content as Grid;
+                    groupBox.Visibility = Visibility.Collapsed;
+                    foreach (UIElement grdChild in grid.Children)
+                    {
+                        Border brd = grdChild as Border;
+                        if (brd.Visibility == Visibility.Visible)
+                            groupBox.Visibility = Visibility.Visible;
+                    }
+                }
+            }
+            catch (Exception) { throw;}
+        }
+
+        private void updateTolaStatus()
+        {
+            try
+            {
+                totalSize = 0;
+                totalFolders = 0;
+                totalFiles = 0;
+                Brush brName = Brushes.SteelBlue; 
+                Brush brValue = Brushes.Black;
+                foreach (FileElementUI child in lstChilds)
+                {
+                    totalSize += child.totalSize;
+                    totalFiles += child.totalFiles;
+                    totalFolders += child.totalFolders;
+                }
+                string strOutput = string.Empty;
+                //if (isEnded) strOutput = "Analysis Complete. ( {4} )" + Environment.NewLine;
+                string strTotalSize = "(" + String.Format("{0:#,0}", totalSize) + " bytes)";
+                double time = totlaTime / 1000;
+                string strTotalTime = String.Format("{0:0.000}", time) + " secs";
+                txtTotalStatus.Inlines.Clear();
+                if (isEnded)
+                {
+                    txtTotalStatus.Inlines.Add(Globals.coloredRun("Analysis Complete 🗸 ", Brushes.LimeGreen));
+                    txtTotalStatus.Inlines.Add(Globals.coloredRun("( ", brName));
+                    txtTotalStatus.Inlines.Add(Globals.coloredRun(strTotalTime, brValue));
+                    txtTotalStatus.Inlines.Add(Globals.coloredRun(" )", brName));
+                    txtTotalStatus.Inlines.Add(new Run(Environment.NewLine));
+                }
+
+                txtTotalStatus.Inlines.Add(Globals.coloredRun("[ ", brName));
+                txtTotalStatus.Inlines.Add(Globals.coloredRun(Globals.sizeFix(totalSize, 2), Brushes.Tomato, strTotalSize));
+                txtTotalStatus.Inlines.Add(Globals.coloredRun(" ]  ", brName));
+                txtTotalStatus.Inlines.Add(Globals.coloredRun(String.Format("{0:#}", totalFiles), brValue));
+                txtTotalStatus.Inlines.Add(Globals.coloredRun(" Files ", brName)); 
+                txtTotalStatus.Inlines.Add(Globals.coloredRun(String.Format("{0:#}",totalFolders), brValue));
+                txtTotalStatus.Inlines.Add(Globals.coloredRun(" Folders", brName));
+
+            }
+            catch (Exception) { throw; }
+        }
+    }
+
+    public class FileElementUI
+    {
+        private delegate void displayProgress();
+        private delegate void displayFiles();
+        private delegate void displayDir();
+        private TextBlock txtElementInfo;
+        private ProgressBar progressBar;
+        private Border brd;
+        private GroupBox parentPanel;
+        private Thread trdUpdateUI;
+        private Thread trdExecuteJob;
+        private Thread trdInitialSearch;
+        private int intStatusPrc;
+        public long totalFiles;
+        public long totalFolders;
+        public long totalSize;
+        public long currentFile;
+        public bool blnSizeSearchIsEnded;
+        public bool blnTotalFilesCountIsEnded;
+        public bool blnIsEnded;
+        private string path;
+        private ErazedElements parent;
+        private List<Files> files = new List<Files>();
+
+        /// <summary>
+        /// Main Constructor
+        /// </summary>
+        /// <param name="path">Search for files inside this path</param>
+        /// <param name="files">List of files to be manipulated</param>
+        /// <param name="progressBar">The ProgressBar to be updated</param>
+        /// <param name="grdDisplay">The DataGrid to be updated</param>
+        public FileElementUI(string path, ProgressBar progressBar, GroupBox parentPanel, ErazedElements parent)
+        {
+            this.parent = parent;
+            blnSizeSearchIsEnded = false;
+            blnTotalFilesCountIsEnded = false;
+            blnIsEnded = false;
+            this.path = path;
+            intStatusPrc = 0;
+            totalFiles = 0;
+            totalFolders = 0;
+            currentFile = 0;
+            totalSize = 0;
+            this.parentPanel = parentPanel;
+            this.progressBar = progressBar;
+            ControlsInit();
+            SearchForFiles();
+        }
+        
+        private void ControlsInit()
+        {
+            try
+            {
+                Grid parentGrid = ((Grid)(parentPanel.Content));
+                parentGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(100, GridUnitType.Auto) });
+
+                txtElementInfo = new TextBlock()
+                {
+
+                    Foreground = Brushes.White,
+                    FontFamily = new FontFamily("Consolas"),
+                    FontSize = 11
+                };
+                txtElementInfo.MouseDown += txtMouseClick;
+                MenuItem mnuCopy = new MenuItem() { Header = "Copy", Name = "mnuCopy" };
+                MenuItem mnuOpen = new MenuItem() { Header = "Open", Name = "mnuOpen" };
+                mnuOpen.Click += mnuClick;
+                mnuCopy.Click += mnuClick;
+                ContextMenu menu = new ContextMenu()
+                {
+                    Items = { mnuCopy, mnuOpen }
+                };
+                txtElementInfo.ContextMenu = menu;
+
+                brd = new Border
+                {
+                    Background = Brushes.Transparent,
+                    BorderBrush = new SolidColorBrush { Color = Color.FromRgb(255, 255, 255), Opacity = 0.5 },
+                    BorderThickness = new Thickness(1),
+                    Margin = new Thickness(2),
+                    Opacity = 0.9
+                };
+                brd.SetValue(Grid.RowProperty, parentGrid.RowDefinitions.Count - 1);
+                brd.Child = txtElementInfo;
+                brd.MouseEnter += brdMouseEnter;
+                brd.MouseLeave += brdMouseLeave;
+                parentGrid.Children.Add(brd);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        private void txtMouseClick(object sender, MouseEventArgs e)
+        {
+            //if (e. == 2)
+        }
+
+        private void mnuClick(object sender, EventArgs e)
+        {
+            MenuItem item = sender as MenuItem;
+
+            switch (item.Name)
+            {
+                case "mnuOpen":
+                    RunProcessAsync(path);
+                    break;
+                case "mnuCopy":
+                    Clipboard.SetText(path);
+                    break;
+                default:
+                    break;
+            }
+        }
+        private void showExplorer()
+        {
+            try
+            {
+                ProcessStartInfo StartInformation = new ProcessStartInfo();
+                StartInformation.FileName = path;
+
+                Process process = Process.Start(StartInformation);
+                process.EnableRaisingEvents = true;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        static Task<int> RunProcessAsync(string fileName)
+        {
+            var tcs = new TaskCompletionSource<int>();
+
+            DirectoryInfo dir = new DirectoryInfo(fileName);
+            if (!dir.Exists) return null;
+            var process = new Process
+            {
+                StartInfo = { FileName = @fileName },
+                EnableRaisingEvents = true
+            };
+
+            process.Exited += (sender, args) =>
+            {
+                tcs.SetResult(process.ExitCode);
+                process.Dispose();
+            };
+
+            process.Start();
+
+            return tcs.Task;
+        }
+        private void brdMouseEnter(object sender, MouseEventArgs e)
+        {
+            ((Border)sender).BorderBrush = new SolidColorBrush { Color = Color.FromRgb(70, 130, 180), Opacity = 0.5 };
+            ((Border)sender).BorderThickness = new Thickness(2);
+            ((Border)sender).Margin = new Thickness(1);
+        }
+
+        private void brdMouseLeave(object sender, MouseEventArgs e)
+        {
+            ((Border)sender).BorderBrush = new SolidColorBrush { Color = Color.FromRgb(255, 255, 255), Opacity = 0.5 };
+            ((Border)sender).BorderThickness = new Thickness(1);
+            ((Border)sender).Margin = new Thickness(2);
+        }
+
+        public void SearchForFiles()
+        {
+            try
+            {
+                files.Clear();
+                trdInitialSearch = new Thread(new ThreadStart(UpdateTotalFilesFolders));
+                trdInitialSearch.IsBackground = true;
+                trdInitialSearch.Start();
                 trdExecuteJob = new Thread(new ThreadStart(SearchRunner));
                 trdExecuteJob.IsBackground = true;
                 trdExecuteJob.Start();
+                trdUpdateUI = new Thread(new ThreadStart(UpdateUIRunner));
+                trdUpdateUI.IsBackground = true;
+                trdUpdateUI.Start();
             }
             catch (Exception)
             {
@@ -92,44 +424,27 @@ namespace Junk_Cleaner_.NET_WPF
             }
         }
 
-        private void updateDataGrid()
-        {
-            try
-            {
-
-                grdDisplay.ItemsSource = null;
-                grdDisplay.ItemsSource = files;
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
-
-        private void shortDataGrid()
-        {
-            try
-            {
-                ICollectionView view = CollectionViewSource.GetDefaultView(grdDisplay.ItemsSource);
-                view.SortDescriptions.Clear();
-                view.SortDescriptions.Add(new SortDescription("length", ListSortDirection.Descending));
-                view.Refresh();
-                //else grdDisplay.ItemsSource = files.OrderByDescending(o => o.length).ToList();
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }
-
         private void updateExpander()
         {
             try
             {
-                string strOutput = "Location : {0} \r\nSize     : {3} {4}\r\nContains : {1} Files, {2} Folders";
+                
+                Brush brName = Brushes.SteelBlue;
+                Brush brValue = Brushes.Black;
+                txtElementInfo.Inlines.Clear();
                 string strTotalSize = "(" + String.Format("{0:#,##0}", totalSize) + " bytes)";
-                expDirectory.Header = string.Format(strOutput, path, totalFiles, totalFolders, Globals.sizeFix(totalSize, 2), strTotalSize);
+
+                txtElementInfo.Inlines.Add(Globals.coloredRun("Location : ", brName));
+                txtElementInfo.Inlines.Add(Globals.coloredRun(path, brValue));
+                txtElementInfo.Inlines.Add(new Run(Environment.NewLine));
+                txtElementInfo.Inlines.Add(Globals.coloredRun("Size     : ", brName));
+                txtElementInfo.Inlines.Add(Globals.coloredRun(Globals.sizeFix(totalSize, 2), Brushes.Tomato, strTotalSize));
+                txtElementInfo.Inlines.Add(Globals.coloredRun(" ( ", brName));
+                txtElementInfo.Inlines.Add(Globals.coloredRun(totalFolders.ToString() , brValue));
+                txtElementInfo.Inlines.Add(Globals.coloredRun(" Folders ", brName));
+                txtElementInfo.Inlines.Add(Globals.coloredRun(totalFiles.ToString(), brValue));
+                txtElementInfo.Inlines.Add(Globals.coloredRun(" Files ) ", brName));
+                //txtElementInfo.Text = string.Format(strOutput, path, totalFiles, totalFolders, Globals.sizeFix(totalSize, 2), strTotalSize);
             }
             catch (Exception)
             {
@@ -137,55 +452,45 @@ namespace Junk_Cleaner_.NET_WPF
                 throw;
             }
         }
-
+        private void HideElement()
+        {
+            try
+            {
+                if (totalFiles == 0 && totalFolders == 0 && totalSize == 0)
+                {
+                    brd.Visibility = Visibility.Collapsed;
+                    return;
+                }
+            }
+            catch (Exception){ throw; }
+        }
         private void UpdateUIRunner()
         {
             try
             {
-                while (!isEnded)
+                while (!blnSizeSearchIsEnded || !blnTotalFilesCountIsEnded)
                 {
                     progressBar.Dispatcher.Invoke(new displayProgress(updateProgressStatus));
-                    grdDisplay.Dispatcher.Invoke(new displayFiles(updateDataGrid));
-                    expDirectory.Dispatcher.Invoke(new displayDir(updateExpander));
+                    txtElementInfo.Dispatcher.Invoke(new displayDir(updateExpander));
+                    brd.Dispatcher.Invoke(new displayDir(HideElement));
                     Thread.Sleep(10);
                 }
                 progressBar.Dispatcher.Invoke(new displayProgress(updateProgressStatus));
-                grdDisplay.Dispatcher.Invoke(new displayFiles(updateDataGrid));
-                grdDisplay.Dispatcher.Invoke(new displayFiles(shortDataGrid));
-                expDirectory.Dispatcher.Invoke(new displayDir(updateExpander));
+                txtElementInfo.Dispatcher.Invoke(new displayDir(updateExpander));
+                blnIsEnded = true;
             }
-            catch (Exception)
-            {
-
-                throw;
-            }
+            catch (Exception){ throw; }
         }
 
         private void SearchRunner()
         {
             try
             {
-                Thread.Sleep(500);
                 FillListFiles(path);
-                isEnded = true;
+                blnSizeSearchIsEnded = true;
             }
             catch (Exception e)
             {
-                throw;
-            }
-        }
-
-        private void initialSearch()
-        {
-            try
-            {
-                trdInitialSearch = new Thread(new ThreadStart(UpdateTotalFilesFolders));
-                trdInitialSearch.IsBackground = true;
-                trdInitialSearch.Start();  
-            }
-            catch (Exception)
-            {
-
                 throw;
             }
         }
@@ -195,6 +500,7 @@ namespace Junk_Cleaner_.NET_WPF
             try
             {
                 FindTotalFiles(path);
+                blnTotalFilesCountIsEnded = true;
             }
             catch (Exception)
             {
@@ -209,29 +515,30 @@ namespace Junk_Cleaner_.NET_WPF
                 if (path.Length > 248)
                     return;
                 DirectoryInfo dir = new DirectoryInfo(path);
-                totalFiles += dir.GetFiles().Length;
+                if (!dir.Exists)
+                    return;
+                int intFilesTotal = dir.GetFiles().Length;
+                totalFiles += intFilesTotal;
+                //parent.totalFiles += intFilesTotal;
                 DirectoryInfo[] dirs = dir.GetDirectories();
-                totalFolders += dirs.Length;
+                int intFoldersTotal = dirs.Length;
+                totalFolders += intFoldersTotal;
+                //parent.totalFolders += intFoldersTotal;
                 foreach (DirectoryInfo subdir in dirs)
-                    try{ FindTotalFiles(subdir.FullName); }
-                    catch (UnauthorizedAccessException){ continue; }
+                    try { FindTotalFiles(subdir.FullName); }
+                    catch (UnauthorizedAccessException) { continue; }
             }
-            catch (PathTooLongException) { throw; }
-            catch (DirectoryNotFoundException) { throw; }
-            catch (Exception)
-            {
-                throw;
-            }
+            catch (UnauthorizedAccessException) { return; }
+            catch (Exception){throw;}
         }
 
         public void FillListFiles(string path)
         {
             try
             {
-                if (path.Length > 248)
-                    return;
+                if (path.Length > 248) return;
                 DirectoryInfo dir = new DirectoryInfo(path);
-                if (!dir.Exists) throw new DirectoryNotFoundException("Source directory does not exist or could not be found: " + path);
+                if (!dir.Exists) return;
 
                 FileInfo[] filesIO = dir.GetFiles();
                 foreach (FileInfo file in filesIO)
@@ -239,13 +546,12 @@ namespace Junk_Cleaner_.NET_WPF
                     {
                         Files f = new Files(file.Name, Path.Combine(path, file.Name), file.Length);
                         files.Add(f);
-                        totalSize += file.Length;
+                        long size = file.Length;
+                        totalSize += size;
+                        //parent.totalSize += size;
                         currentFile++;
                     }
-                    catch (UnauthorizedAccessException)
-                    {
-                        continue;
-                    }
+                    catch (UnauthorizedAccessException){ continue; }
 
                 DirectoryInfo[] dirs = dir.GetDirectories();
                 foreach (DirectoryInfo subdir in dirs)
@@ -253,12 +559,14 @@ namespace Junk_Cleaner_.NET_WPF
                     catch (UnauthorizedAccessException) { continue; }
 
             }
+            catch (UnauthorizedAccessException) { return; }
             catch (Exception exc)
             {
                 System.Diagnostics.Debug.WriteLine(exc.Message + " Directory upload Error");
                 throw;
             }
         }
+
     }
 }
 
