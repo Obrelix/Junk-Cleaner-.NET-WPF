@@ -28,6 +28,12 @@ namespace Junk_Cleaner_.NET_WPF
             ControlsInit();
         }
 
+        public void changeSkinMode()
+        {
+            chkIsActive.Foreground = Globals.ValueColor;
+            chkIsActive.UpdateLayout();
+        }
+
         private void ControlsInit()
         {
             try
@@ -35,8 +41,8 @@ namespace Junk_Cleaner_.NET_WPF
                 parentGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(100, GridUnitType.Auto) });
                 chkIsActive = new CheckBox()
                 {
-                    Foreground = System.Windows.Media.Brushes.Black,
-                    FontFamily = new System.Windows.Media.FontFamily("Consolas"),
+                    Foreground = Globals.ValueColor,
+                    FontFamily = new FontFamily("Consolas"),
                     FontSize = 10,
                     IsChecked = true,
                     Content = strName,

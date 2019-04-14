@@ -44,6 +44,12 @@ namespace Junk_Cleaner_.NET_WPF
             run();
         }
 
+
+        public void changeSkinMode()
+        {
+            textBlock.Dispatcher.Invoke(new displayInfo(SetOutputString));
+        }
+
         private void run()
         {
             try
@@ -115,34 +121,32 @@ namespace Junk_Cleaner_.NET_WPF
         {
             try
             {
-                Brush brName = Brushes.SteelBlue; 
-                 Brush brValue = Brushes.Black;
                 textBlock.Inlines.Clear();
-                textBlock.Inlines.Add(Globals.coloredRun("OS  : ", brName));
-                textBlock.Inlines.Add(Globals.coloredRun(strOSFullName + " " , brValue));
+                textBlock.Inlines.Add(Globals.coloredRun("OS  : ", Globals.LabelColor));
+                textBlock.Inlines.Add(Globals.coloredRun(strOSFullName + " " , Globals.ValueColor));
                 if(!string.IsNullOrEmpty(strServicePack.Trim()))
-                    textBlock.Inlines.Add(Globals.coloredRun(strServicePack + " ", brValue));
+                    textBlock.Inlines.Add(Globals.coloredRun(strServicePack + " ", Globals.ValueColor));
                 if (!string.IsNullOrEmpty(strOSBits.Trim()))
-                    textBlock.Inlines.Add(Globals.coloredRun(strOSBits + " ", brValue));
+                    textBlock.Inlines.Add(Globals.coloredRun(strOSBits + " ", Globals.ValueColor));
                 if (!string.IsNullOrEmpty(strVersionString.Trim()))
                 {
-                    textBlock.Inlines.Add(Globals.coloredRun("[ Version : ", brName));
-                    textBlock.Inlines.Add(Globals.coloredRun(strVersionString, brValue));
-                    textBlock.Inlines.Add(Globals.coloredRun(" ]", brName));
+                    textBlock.Inlines.Add(Globals.coloredRun("[ Version : ", Globals.LabelColor));
+                    textBlock.Inlines.Add(Globals.coloredRun(strVersionString, Globals.ValueColor));
+                    textBlock.Inlines.Add(Globals.coloredRun(" ]", Globals.LabelColor));
                 }
                 textBlock.Inlines.Add(new Run(Environment.NewLine));
-                textBlock.Inlines.Add(Globals.coloredRun("CPU : ", brName));
-                textBlock.Inlines.Add(Globals.coloredRun(strCPUOutput + " ", brValue));
-                textBlock.Inlines.Add(Globals.coloredRun(strProcessorBits + " ", brValue));
+                textBlock.Inlines.Add(Globals.coloredRun("CPU : ", Globals.LabelColor));
+                textBlock.Inlines.Add(Globals.coloredRun(strCPUOutput + " ", Globals.ValueColor));
+                textBlock.Inlines.Add(Globals.coloredRun(strProcessorBits + " ", Globals.ValueColor));
                 textBlock.Inlines.Add(new Run(Environment.NewLine));
-                textBlock.Inlines.Add(Globals.coloredRun("RAM : ", brName));
-                textBlock.Inlines.Add(Globals.coloredRun(strRamInfo + " ", brValue));
+                textBlock.Inlines.Add(Globals.coloredRun("RAM : ", Globals.LabelColor));
+                textBlock.Inlines.Add(Globals.coloredRun(strRamInfo + " ", Globals.ValueColor));
                 textBlock.Inlines.Add(new Run(Environment.NewLine));
-                textBlock.Inlines.Add(Globals.coloredRun("VGA : ", brName));
-                textBlock.Inlines.Add(Globals.coloredRun(strGPUOutput + " ", brValue));
-                textBlock.Inlines.Add(Globals.coloredRun("[ Ram : ", brName));
-                textBlock.Inlines.Add(Globals.coloredRun(strGPURamInfo + " ", brValue));
-                textBlock.Inlines.Add(Globals.coloredRun(" ]", brName));
+                textBlock.Inlines.Add(Globals.coloredRun("VGA : ", Globals.LabelColor));
+                textBlock.Inlines.Add(Globals.coloredRun(strGPUOutput + " ", Globals.ValueColor));
+                textBlock.Inlines.Add(Globals.coloredRun("[ Ram : ", Globals.LabelColor));
+                textBlock.Inlines.Add(Globals.coloredRun(strGPURamInfo + " ", Globals.ValueColor));
+                textBlock.Inlines.Add(Globals.coloredRun(" ]", Globals.LabelColor));
                 //StringBuilder sb = new StringBuilder(String.Empty);
                 //sb.AppendLine(String.Format("OS  : {0} {1} {2} [ {3} ]", strOSFullName, strServicePack, strOSBits, strVersionString));
                 //sb.AppendLine(String.Format("CPU : {0} {1}", strCPUOutput, strProcessorBits));

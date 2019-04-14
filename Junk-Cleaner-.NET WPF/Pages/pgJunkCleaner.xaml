@@ -22,12 +22,12 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="100*"/>
         </Grid.RowDefinitions>
-        <TabControl x:Name="tbProperties" Grid.RowSpan="4" Width="165" VerticalAlignment="Top" Margin="0,5,5,0" BorderBrush="White" BorderThickness="3">
+        <TabControl x:Name="tbProperties" Grid.RowSpan="4" Width="165" VerticalAlignment="Top" Margin="0,5,5,0" BorderBrush="White" BorderThickness="3" >
             <TabControl.Background>
                 <SolidColorBrush Color="White" Opacity="0"/>
             </TabControl.Background>
-            <TabItem Header="Applications" FontWeight="Bold" >
-                <Grid x:Name="grdElements" >
+            <TabItem x:Name="tbApplications" Header="Applications" FontWeight="Bold" Foreground="SteelBlue">
+                <Grid x:Name="grdAppElements" >
                     <Grid.Background>
                         <SolidColorBrush Color="#FF0081B2" Opacity="0.1"/>
                     </Grid.Background>
@@ -35,7 +35,7 @@
                 </Grid>
             </TabItem>
         </TabControl>
-        <GroupBox Header="Analisys Information" VerticalAlignment="Top" Foreground="SteelBlue" Grid.Row="1" Grid.Column="1" Margin="0,0,0,5" BorderThickness="1" BorderBrush="White" FontWeight="Bold">
+        <GroupBox x:Name="gbxAnalysisInfo" Header="Analysis Information" VerticalAlignment="Top" Foreground="SteelBlue" Grid.Row="1" Grid.Column="1" Margin="0,0,0,5" BorderThickness="1" BorderBrush="White" FontWeight="Bold">
             <GroupBox.Background>
                 <SolidColorBrush Color="#FF0081B2" Opacity="0.1"/>
             </GroupBox.Background>
@@ -60,9 +60,7 @@
         <Button x:Name="btnAnalyze" Content="Analyze" HorizontalAlignment="Left" Margin="0,10,0,0" VerticalAlignment="Bottom" Width="75" Foreground="Black" BorderBrush="#FF154FE8" Background="SteelBlue" Click="BtnAnalyze_Click" Height="35" Grid.Column="1" Grid.Row="3"/>
         <Button x:Name="btnEraze" Content="Eraze" HorizontalAlignment="Right" Margin="0,10,0,0" VerticalAlignment="Bottom" Width="75" Background="SteelBlue" Foreground="Black" BorderBrush="#FF4578FF" Height="35" Grid.Column="1" Grid.Row="3"/>
 
-       
-       
-        <Expander Header="File Analisys" Margin="0" VerticalAlignment="Top" Foreground="SteelBlue" Grid.Column="1" Grid.Row="2" FontWeight="Bold" BorderBrush="White" BorderThickness="3">
+        <Expander x:Name="expJunkFiles" Header="Junk Files" Margin="0" VerticalAlignment="Top" Foreground="SteelBlue" Grid.Column="1" Grid.Row="2" FontWeight="Bold" BorderBrush="White" BorderThickness="3">
             <ScrollViewer  VerticalScrollBarVisibility="Auto" >
                 <Grid x:Name="grdFileInfo" >
                     <Grid.RowDefinitions>

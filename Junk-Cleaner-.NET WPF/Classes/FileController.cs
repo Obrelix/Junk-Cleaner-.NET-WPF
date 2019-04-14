@@ -17,7 +17,7 @@ using System.Windows.Media;
 
 namespace Junk_Cleaner_.NET_WPF
 {
-    public class FileController
+    public class PathController
     {
         private delegate void displayProgress();
         private Grid parentGrid;
@@ -30,7 +30,7 @@ namespace Junk_Cleaner_.NET_WPF
         private TextBlock txtProcessStatus;
         private ProgressBar progressBar;
         private Thread trdUpdateUI;
-        private List<FileElementUI> lstChilds;
+        private List<PathElementUI> lstChilds;
         private List<ErazedElements> lstElements;
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace Junk_Cleaner_.NET_WPF
         /// <param name="files">List of files to be manipulated</param>
         /// <param name="progressBar">The ProgressBar to be updated</param>
         /// <param name="grdDisplay">The DataGrid to be updated</param>
-        public FileController(List<ErazedElements> lstElements,ProgressBar progressBar, Grid grdDisplay, TextBlock txtTotalStatus, TextBlock txtProcessStatus)
+        public PathController(List<ErazedElements> lstElements,ProgressBar progressBar, Grid grdDisplay, TextBlock txtTotalStatus, TextBlock txtProcessStatus)
         {
             isEnded = false;
             totalFiles = 0;
@@ -48,7 +48,7 @@ namespace Junk_Cleaner_.NET_WPF
             totalSize = 0;
             totlaTime = 0;
             parentGrid = grdDisplay;
-            lstChilds = new List<FileElementUI>();
+            lstChilds = new List<PathElementUI>();
             this.txtTotalStatus = txtTotalStatus;
             this.txtProcessStatus = txtProcessStatus;
             this.progressBar = progressBar;
@@ -57,6 +57,15 @@ namespace Junk_Cleaner_.NET_WPF
             SearchForFiles();
         }
 
+        public void changeSkinMode()
+        {
+            try
+            {
+                txtTotalStatus.Dispatcher.Invoke(new displayProgress(updateTolaStatus));
+                foreach (PathElementUI child in lstChilds) child.changeSkinMode();
+            }
+            catch (Exception){throw;}
+        }
 
         public void SearchForFiles()
         {
@@ -70,7 +79,7 @@ namespace Junk_Cleaner_.NET_WPF
                         GroupBox grb = GroupBoxInit(element.strName);
                         foreach (string path in element.lstPaths)
                             if (new DirectoryInfo(path).Exists)
-                                lstChilds.Add(new FileElementUI(path, progressBar, grb, element));
+                                lstChilds.Add(new PathElementUI(path, progressBar, grb, element));
 
                     }
                 }
@@ -128,7 +137,6 @@ namespace Junk_Cleaner_.NET_WPF
             //((GroupBox)sender).BorderBrush = Brushes.White;
         }
 
-
         private void UpdateUIRunner()
         {
             try
@@ -181,16 +189,13 @@ namespace Junk_Cleaner_.NET_WPF
                 totalSize = 0;
                 totalFolders = 0;
                 totalFiles = 0;
-                Brush brName = Brushes.SteelBlue; 
-                Brush brValue = Brushes.Black;
-                foreach (FileElementUI child in lstChilds)
+                foreach (PathElementUI child in lstChilds)
                 {
                     totalSize += child.totalSize;
                     totalFiles += child.totalFiles;
                     totalFolders += child.totalFolders;
                 }
                 string strOutput = string.Empty;
-                //if (isEnded) strOutput = "Analysis Complete. ( {4} )" + Environment.NewLine;
                 string strTotalSize = "(" + String.Format("{0:#,0}", totalSize) + " bytes)";
                 double time = totlaTime / 1000;
                 string strTotalTime = String.Format("{0:0.000}", time) + " secs";
@@ -198,26 +203,26 @@ namespace Junk_Cleaner_.NET_WPF
                 if (isEnded)
                 {
                     txtTotalStatus.Inlines.Add(Globals.coloredRun("Analysis Complete 🗸 ", Brushes.LimeGreen));
-                    txtTotalStatus.Inlines.Add(Globals.coloredRun("( ", brName));
-                    txtTotalStatus.Inlines.Add(Globals.coloredRun(strTotalTime, brValue));
-                    txtTotalStatus.Inlines.Add(Globals.coloredRun(" )", brName));
+                    txtTotalStatus.Inlines.Add(Globals.coloredRun("( ", Globals.LabelColor));
+                    txtTotalStatus.Inlines.Add(Globals.coloredRun(strTotalTime, Globals.ValueColor));
+                    txtTotalStatus.Inlines.Add(Globals.coloredRun(" )", Globals.LabelColor));
                     txtTotalStatus.Inlines.Add(new Run(Environment.NewLine));
                 }
 
-                txtTotalStatus.Inlines.Add(Globals.coloredRun("[ ", brName));
+                txtTotalStatus.Inlines.Add(Globals.coloredRun("[ ", Globals.LabelColor));
                 txtTotalStatus.Inlines.Add(Globals.coloredRun(Globals.sizeFix(totalSize, 2), Brushes.Tomato, strTotalSize));
-                txtTotalStatus.Inlines.Add(Globals.coloredRun(" ]  ", brName));
-                txtTotalStatus.Inlines.Add(Globals.coloredRun(String.Format("{0:#}", totalFiles), brValue));
-                txtTotalStatus.Inlines.Add(Globals.coloredRun(" Files ", brName)); 
-                txtTotalStatus.Inlines.Add(Globals.coloredRun(String.Format("{0:#}",totalFolders), brValue));
-                txtTotalStatus.Inlines.Add(Globals.coloredRun(" Folders", brName));
+                txtTotalStatus.Inlines.Add(Globals.coloredRun(" ]  ", Globals.LabelColor));
+                txtTotalStatus.Inlines.Add(Globals.coloredRun(String.Format("{0:#}", totalFiles), Globals.ValueColor));
+                txtTotalStatus.Inlines.Add(Globals.coloredRun(" Files ", Globals.LabelColor)); 
+                txtTotalStatus.Inlines.Add(Globals.coloredRun(String.Format("{0:#}",totalFolders), Globals.ValueColor));
+                txtTotalStatus.Inlines.Add(Globals.coloredRun(" Folders", Globals.LabelColor));
 
             }
             catch (Exception) { throw; }
         }
     }
 
-    public class FileElementUI
+    public class PathElementUI
     {
         private delegate void displayProgress();
         private delegate void displayFiles();
@@ -248,7 +253,7 @@ namespace Junk_Cleaner_.NET_WPF
         /// <param name="files">List of files to be manipulated</param>
         /// <param name="progressBar">The ProgressBar to be updated</param>
         /// <param name="grdDisplay">The DataGrid to be updated</param>
-        public FileElementUI(string path, ProgressBar progressBar, GroupBox parentPanel, ErazedElements parent)
+        public PathElementUI(string path, ProgressBar progressBar, GroupBox parentPanel, ErazedElements parent)
         {
             this.parent = parent;
             blnSizeSearchIsEnded = false;
@@ -265,7 +270,16 @@ namespace Junk_Cleaner_.NET_WPF
             ControlsInit();
             SearchForFiles();
         }
-        
+
+        public void changeSkinMode()
+        {
+            try
+            {
+                txtElementInfo.Dispatcher.Invoke(new displayDir(updateTextBlock));
+            }
+            catch (Exception) { throw; }
+        }
+
         private void ControlsInit()
         {
             try
@@ -333,45 +347,34 @@ namespace Junk_Cleaner_.NET_WPF
                     break;
             }
         }
-        private void showExplorer()
+
+        private static Task<int> RunProcessAsync(string fileName)
         {
             try
             {
-                ProcessStartInfo StartInformation = new ProcessStartInfo();
-                StartInformation.FileName = path;
+                var tcs = new TaskCompletionSource<int>();
 
-                Process process = Process.Start(StartInformation);
-                process.EnableRaisingEvents = true;
-            }
-            catch (Exception)
-            {
+                DirectoryInfo dir = new DirectoryInfo(fileName);
+                if (!dir.Exists) return null;
+                var process = new Process
+                {
+                    StartInfo = { FileName = @fileName },
+                    EnableRaisingEvents = true
+                };
 
-                throw;
+                process.Exited += (sender, args) =>
+                {
+                    tcs.SetResult(process.ExitCode);
+                    process.Dispose();
+                };
+
+                process.Start();
+
+                return tcs.Task;
             }
+            catch (Exception){throw;}
         }
 
-        static Task<int> RunProcessAsync(string fileName)
-        {
-            var tcs = new TaskCompletionSource<int>();
-
-            DirectoryInfo dir = new DirectoryInfo(fileName);
-            if (!dir.Exists) return null;
-            var process = new Process
-            {
-                StartInfo = { FileName = @fileName },
-                EnableRaisingEvents = true
-            };
-
-            process.Exited += (sender, args) =>
-            {
-                tcs.SetResult(process.ExitCode);
-                process.Dispose();
-            };
-
-            process.Start();
-
-            return tcs.Task;
-        }
         private void brdMouseEnter(object sender, MouseEventArgs e)
         {
             ((Border)sender).BorderBrush = new SolidColorBrush { Color = Color.FromRgb(70, 130, 180), Opacity = 0.5 };
@@ -424,34 +427,29 @@ namespace Junk_Cleaner_.NET_WPF
             }
         }
 
-        private void updateExpander()
+        private void updateTextBlock()
         {
             try
             {
                 
-                Brush brName = Brushes.SteelBlue;
-                Brush brValue = Brushes.Black;
-                txtElementInfo.Inlines.Clear();
                 string strTotalSize = "(" + String.Format("{0:#,##0}", totalSize) + " bytes)";
 
-                txtElementInfo.Inlines.Add(Globals.coloredRun("Location : ", brName));
-                txtElementInfo.Inlines.Add(Globals.coloredRun(path, brValue));
+                txtElementInfo.Inlines.Clear();
+                txtElementInfo.Inlines.Add(Globals.coloredRun("Location : ", Globals.LabelColor));
+                txtElementInfo.Inlines.Add(Globals.coloredRun(path, Globals.ValueColor));
                 txtElementInfo.Inlines.Add(new Run(Environment.NewLine));
-                txtElementInfo.Inlines.Add(Globals.coloredRun("Size     : ", brName));
+                txtElementInfo.Inlines.Add(Globals.coloredRun("Size     : ", Globals.LabelColor));
                 txtElementInfo.Inlines.Add(Globals.coloredRun(Globals.sizeFix(totalSize, 2), Brushes.Tomato, strTotalSize));
-                txtElementInfo.Inlines.Add(Globals.coloredRun(" ( ", brName));
-                txtElementInfo.Inlines.Add(Globals.coloredRun(totalFolders.ToString() , brValue));
-                txtElementInfo.Inlines.Add(Globals.coloredRun(" Folders ", brName));
-                txtElementInfo.Inlines.Add(Globals.coloredRun(totalFiles.ToString(), brValue));
-                txtElementInfo.Inlines.Add(Globals.coloredRun(" Files ) ", brName));
+                txtElementInfo.Inlines.Add(Globals.coloredRun(" ( ", Globals.LabelColor));
+                txtElementInfo.Inlines.Add(Globals.coloredRun(totalFolders.ToString() , Globals.ValueColor));
+                txtElementInfo.Inlines.Add(Globals.coloredRun(" Folders ", Globals.LabelColor));
+                txtElementInfo.Inlines.Add(Globals.coloredRun(totalFiles.ToString(), Globals.ValueColor));
+                txtElementInfo.Inlines.Add(Globals.coloredRun(" Files ) ", Globals.LabelColor));
                 //txtElementInfo.Text = string.Format(strOutput, path, totalFiles, totalFolders, Globals.sizeFix(totalSize, 2), strTotalSize);
             }
-            catch (Exception)
-            {
-
-                throw;
-            }
+            catch (Exception){throw;}
         }
+
         private void HideElement()
         {
             try
@@ -464,6 +462,7 @@ namespace Junk_Cleaner_.NET_WPF
             }
             catch (Exception){ throw; }
         }
+
         private void UpdateUIRunner()
         {
             try
@@ -471,12 +470,12 @@ namespace Junk_Cleaner_.NET_WPF
                 while (!blnSizeSearchIsEnded || !blnTotalFilesCountIsEnded)
                 {
                     progressBar.Dispatcher.Invoke(new displayProgress(updateProgressStatus));
-                    txtElementInfo.Dispatcher.Invoke(new displayDir(updateExpander));
+                    txtElementInfo.Dispatcher.Invoke(new displayDir(updateTextBlock));
                     brd.Dispatcher.Invoke(new displayDir(HideElement));
                     Thread.Sleep(10);
                 }
                 progressBar.Dispatcher.Invoke(new displayProgress(updateProgressStatus));
-                txtElementInfo.Dispatcher.Invoke(new displayDir(updateExpander));
+                txtElementInfo.Dispatcher.Invoke(new displayDir(updateTextBlock));
                 blnIsEnded = true;
             }
             catch (Exception){ throw; }
@@ -489,10 +488,7 @@ namespace Junk_Cleaner_.NET_WPF
                 FillListFiles(path);
                 blnSizeSearchIsEnded = true;
             }
-            catch (Exception e)
-            {
-                throw;
-            }
+            catch (Exception e){throw;}
         }
 
         private void UpdateTotalFilesFolders()
@@ -502,10 +498,7 @@ namespace Junk_Cleaner_.NET_WPF
                 FindTotalFiles(path);
                 blnTotalFilesCountIsEnded = true;
             }
-            catch (Exception)
-            {
-                throw;
-            }
+            catch (Exception){throw;}
         }
 
         private void FindTotalFiles(string path)

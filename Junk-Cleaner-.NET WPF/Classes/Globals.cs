@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,11 +9,27 @@ using System.Windows.Media;
 
 namespace Junk_Cleaner_.NET_WPF
 {
+
     public static class Globals
     {
+        private static readonly string strAppDataPath = Directory.GetParent(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)).FullName;
+        public static Brush BackgroundColor { get; set; }
+        public static Brush ValueColor { get; set; }
+        public static Brush LabelColor { get; set; }
+        public static Brush SizeColor { get; set; }
+        public static Brush FinishedColor { get; set; }
 
         private static readonly string[] SizeSuffixes =
                   { "bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB" };
+
+        public static void ChangeSkinMode(SkinElement skin)
+        {
+            BackgroundColor = skin.Background;
+            ValueColor = skin.Values;
+            LabelColor = skin.Labels;
+            SizeColor = skin.Size;
+            FinishedColor = skin.Finished;
+        }
 
         public static string sizeFix(long length, int decimalPlaces)
         {

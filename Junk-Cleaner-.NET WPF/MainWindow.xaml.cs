@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,17 +17,61 @@ using System.Windows.Shapes;
 
 namespace Junk_Cleaner_.NET_WPF
 {
+
+    public enum SkinMode : int
+    {
+        Dark = 0,
+        Light = 1,
+        Hippy = 2
+    }
+
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
         private double _height;
-
+        private HardwareInfo hardwareInfo;
+        private pgJunkCleaner JunkCleaner;
         public event PropertyChangedEventHandler PropertyChanged;
+        private List<SkinElement> skins = new List<SkinElement>();
+
         public MainWindow()
         {
             InitializeComponent();
+            hardwareInfo = new HardwareInfo(txtSystemInfo);
+            btnDarkSkin.IsChecked = true;
+            SkinsInit();
+            Globals.ChangeSkinMode(skins[(int)SkinMode.Dark]);
+            JunkCleaner = new pgJunkCleaner();
+            frmNavigate.Navigate(JunkCleaner);
+            ChangeSkin(SkinMode.Dark);
+        }
+
+        private void SkinsInit()
+        {
+            try
+            {
+                //Dark Skin
+                skins.Add(new SkinElement(new SolidColorBrush { Color = Color.FromRgb(11, 22, 29), Opacity = 1 },
+                                          Brushes.White,
+                                          new SolidColorBrush { Color = Color.FromRgb(21, 132, 224), Opacity = 1 },
+                                          new SolidColorBrush { Color = Color.FromRgb(214, 58, 97), Opacity = 1 },
+                                          new SolidColorBrush { Color = Color.FromRgb(85, 228, 57), Opacity = 1 }));
+                //Light skin
+                skins.Add(new SkinElement(Brushes.Gainsboro,
+                                          Brushes.Black,
+                                          Brushes.SteelBlue,
+                                          Brushes.Tomato,
+                                          Brushes.LimeGreen));
+                //Hippy skin
+                skins.Add(new SkinElement(Brushes.DarkSlateGray,
+                                          Brushes.White,
+                                          Brushes.SteelBlue,
+                                          Brushes.Tomato,
+                                          Brushes.LimeGreen));
+            }
+            catch (Exception){throw;}
         }
 
         public double CustomHeight
@@ -43,19 +88,75 @@ namespace Junk_Cleaner_.NET_WPF
             }
         }
 
-        private void btnMenuLink_Click(object sender, RoutedEventArgs e)
+        private void ChangeSkin(SkinMode skin)
         {
-
+            try
+            {
+                Globals.ChangeSkinMode(skins[(int)skin]);
+                this.Background = Globals.BackgroundColor;
+                gbxSystem.Foreground = Globals.LabelColor;
+                hardwareInfo.changeSkinMode();
+                JunkCleaner.changeSkinMode();
+            }
+            catch (Exception){throw;}
         }
 
-        private void Exit_Click(object sender, RoutedEventArgs e)
+        private void btnMenu_Click(object sender, RoutedEventArgs e)
         {
+            try
+            {
+                MenuItem menu = sender as MenuItem;
+                switch (menu.Name)
+                {
+                    case "btnJunkCleaner":
+                        break;
+                    case "btnDiskAnalyzer":
+                        break;
+                    case "btnDarkSkin":
+                        btnLightSkin.IsChecked = false;
+                        btnHippySkin.IsChecked = false;
+                        ChangeSkin(SkinMode.Dark);
+                        break;
+                    case "btnLightSkin":
+                        btnDarkSkin.IsChecked = false;
+                        btnHippySkin.IsChecked = false;
+                        ChangeSkin(SkinMode.Light);
+                        break;
+                    case "btnHippySkin":
+                        btnDarkSkin.IsChecked = false;
+                        btnLightSkin.IsChecked = false;
+                        ChangeSkin(SkinMode.Hippy);
+                        break;
+                    case "btnSourceCodeLink":
+                        Process.Start("https://github.com/Obrelix/Junk-Cleaner-.NET-WPF");
+                        break;
+                    case "btnIssuesLink":
+                        Process.Start("https://github.com/Obrelix/Junk-Cleaner-.NET-WPF/issues");
+                        break;
+                    case "btnAbout":
+                        Process.Start("https://github.com/Obrelix");
+                        break;
+                    case "btnLoad":
+                        break;
+                    case "btnSave":
+                        break;
+                    case "btnExit":
+                        base.OnClosed(e);
+                        Application.Current.Shutdown();
+                        break;
+                    default:
+                        break;
+                }
+            }
+            catch (Exception)
+            {
 
+                throw;
+            }
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            new HardwareInfo(txtSystemInfo);
         }
 
         private void FrmNavigate_SizeChanged(object sender, SizeChangedEventArgs e)

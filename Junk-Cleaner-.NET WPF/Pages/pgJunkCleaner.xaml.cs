@@ -18,6 +18,7 @@ using System.ComponentModel;
 using System.Windows.Forms;
 using Binding = System.Windows.Data.Binding;
 using Path = System.IO.Path;
+using CheckBox = System.Windows.Controls.CheckBox;
 
 namespace Junk_Cleaner_.NET_WPF
 {
@@ -28,61 +29,61 @@ namespace Junk_Cleaner_.NET_WPF
     {
         private List<string> lstPaths = new List<string>();
         private List<ErazedElements> lstErazedElements;
+        private PathController fileController;
         public pgJunkCleaner()
         {
             InitializeComponent();
             string strAppDataPath = Directory.GetParent(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)).FullName;
 
-            lstPaths.Add(@"C:\Windows\Temp");
-            lstPaths.Add(Path.Combine(strAppDataPath, @"Local\Temp"));
-            lstPaths.Add(Path.Combine(strAppDataPath, @"Local\Google\Chrome\User Data"));
-            lstPaths.Add(Path.Combine(strAppDataPath, @"Local\Mozilla\Firefox\Profiles"));
-            lstPaths.Add(Path.Combine(strAppDataPath, @"Roaming\Mozilla\Firefox\Profiles"));
-            lstPaths.Add(Path.Combine(strAppDataPath, @"Local\Opera\Opera"));
-            lstPaths.Add(Path.Combine(strAppDataPath, @"Roaming\Opera\Opera"));
-            lstPaths.Add(Path.Combine(strAppDataPath, @"Local\Microsoft\Intern~1"));
-            lstPaths.Add(Path.Combine(strAppDataPath, @"Local\Microsoft\Windows\History"));
-            lstPaths.Add(Path.Combine(strAppDataPath, @"Local\Microsoft\Windows\Tempor~1"));
-            lstPaths.Add(Path.Combine(strAppDataPath, @"Roaming\Microsoft\Windows\Cookies"));
-            lstPaths.Add(Path.Combine(strAppDataPath, @"Roaming\Macromedia\Flashp~1"));
-
             lstErazedElements = new List<ErazedElements>()
             {
-                new ErazedElements("Windows Temp Files", grdElements, new List<string>()
+                new ErazedElements("Windows Temp Files", grdAppElements, new List<string>()
                 {
                     @"C:\Windows\Temp",
                     Path.Combine(strAppDataPath, @"Local\Temp")
                 }),
-                new ErazedElements("Google Chrome", grdElements, new List<string>()
+                new ErazedElements("Google Chrome", grdAppElements, new List<string>()
                 {
                     Path.Combine(strAppDataPath, @"Local\Google\Chrome\User Data")
                 }),
-                new ErazedElements("Mozilla Firefox", grdElements, new List<string>()
+                new ErazedElements("Mozilla Firefox", grdAppElements, new List<string>()
                 {
                     Path.Combine(strAppDataPath, @"Local\Mozilla\Firefox\Profiles"),
                     Path.Combine(strAppDataPath, @"Roaming\Mozilla\Firefox\Profiles")
                 }),
-                new ErazedElements("Opera", grdElements, new List<string>()
+                new ErazedElements("Opera", grdAppElements, new List<string>()
                 {
                     Path.Combine(strAppDataPath, @"Local\Opera\Opera"),
                     Path.Combine(strAppDataPath, @"Roaming\Opera\Opera")
                 }),
-                new ErazedElements("Internet Explorer", grdElements, new List<string>()
+                new ErazedElements("Internet Explorer", grdAppElements, new List<string>()
                 {
                     Path.Combine(strAppDataPath, @"Local\Microsoft\Intern~1"),
                     Path.Combine(strAppDataPath, @"Local\Microsoft\Windows\History"),
                     Path.Combine(strAppDataPath, @"Local\Microsoft\Windows\Tempor~1"),
                     Path.Combine(strAppDataPath, @"Roaming\Microsoft\Windows\Cookies")
                 }),
-                new ErazedElements("Macromedia Flash Player", grdElements, new List<string>()
+                new ErazedElements("Macromedia Flash Player", grdAppElements, new List<string>()
                 {
                     Path.Combine(strAppDataPath, @"Roaming\Macromedia\Flashp~1")
                 })
 
-
             };
         }
 
+
+        public void changeSkinMode()
+        {
+            try
+            {
+                gbxAnalysisInfo.Foreground = Globals.LabelColor;
+                expJunkFiles.Foreground = Globals.LabelColor;
+                tbApplications.Foreground = Globals.LabelColor;
+                foreach (ErazedElements element in lstErazedElements) element.changeSkinMode();
+                if (!(fileController is null)) fileController.changeSkinMode();
+            }
+            catch (Exception){throw;}
+        }
 
         private void BtnAnalyze_Click(object sender, RoutedEventArgs e)
         {
@@ -93,7 +94,7 @@ namespace Junk_Cleaner_.NET_WPF
             //    {
             //    }
             //}
-            new FileController(lstErazedElements, pgbFilesStatus, grdFileInfo, txtTotalStatus, txtProcessStatus);
+            fileController = new PathController(lstErazedElements, pgbFilesStatus, grdFileInfo, txtTotalStatus, txtProcessStatus);
         }
 
         private void CheckBox_Checked(object sender, RoutedEventArgs e)
