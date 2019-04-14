@@ -10,6 +10,52 @@ using System.Windows.Media;
 
 namespace Junk_Cleaner_.NET_WPF
 {
+    public class ElementControler
+    {
+        private Grid parentGrid;
+        private GroupBox gbx;
+        public Grid childGrid;
+        public string strName;
+        public List<ErazedElements> lstChilds;
+
+        public ElementControler(Grid parentGrid, string strName, List<ErazedElements> lstChilds)
+        {
+            this.parentGrid = parentGrid;
+            this.strName = strName;
+            this.lstChilds = lstChilds;
+            ControlsInit();
+        }
+
+        private void ControlsInit()
+        {
+            try
+            {
+                parentGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(100, GridUnitType.Auto) });
+                gbx = new GroupBox()
+                {
+                    Foreground = Brushes.RosyBrown,
+                    FontFamily = new FontFamily("Consolas"),
+                    FontSize = 11,
+                    Header = strName,
+                    BorderThickness = new Thickness(0.3)
+                };
+                childGrid = new Grid { Background = Brushes.Transparent };
+                gbx.Content = childGrid;
+                foreach (ErazedElements child in lstChilds)
+                    child.setParentGrid(childGrid);
+                gbx.SetValue(Grid.RowProperty, parentGrid.RowDefinitions.Count - 1);
+                parentGrid.Children.Add(gbx);
+            }
+            catch (Exception) { throw; }
+        }
+
+        public static explicit operator ElementControler(DependencyObject v)
+        {
+            throw new NotImplementedException();
+        }
+
+    }
+
     public class ErazedElements
     {
         private Grid parentGrid;
@@ -19,13 +65,30 @@ namespace Junk_Cleaner_.NET_WPF
         public bool IsActive;
         public List<string> lstPaths;
 
-        public ErazedElements(string strName, Grid parentGrid, List<string> lstPaths)
+        public ErazedElements(string strName, List<string> lstPaths)
         {
             IsActive = true;
-            this.parentGrid = parentGrid;
             this.lstPaths = lstPaths;
             this.strName = strName;
+        }
+
+        public ErazedElements(string strName, List<string> lstPaths, Grid parentGrid)
+        {
+            IsActive = true;
+            this.lstPaths = lstPaths;
+            this.strName = strName;
+            this.parentGrid = parentGrid;
             ControlsInit();
+        }
+
+        public void setParentGrid(Grid parentGrid)
+        {
+            try
+            {
+                this.parentGrid = parentGrid;
+                ControlsInit();
+            }
+            catch (Exception){throw;}
         }
 
         public void changeSkinMode()
@@ -86,32 +149,6 @@ namespace Junk_Cleaner_.NET_WPF
             IsActive = (bool)chkIsActive.IsChecked;
         }
 
-    }
-    public  class MicrosoftEdge
-    {
-        public bool blnInternetCache { get; set; }
-        public bool blnInternetHistory { get; set; }
-        public bool blnCookies { get; set; }
-        public bool blnDownloadHistory { get; set; }
-        public bool blnLastDownloadLocation { get; set; }
-        public bool blnSession { get; set; }
-        public bool blnRecentlyTypedURLs { get; set; }
-        public bool blnSavedFormInformation { get; set; }
-        public bool blnSavedPasswords { get; set; }
-    }
-
-    public class SystemElement
-    {
-        public string strImagePath { get; set; }
-        public bool blnRecycleBin { get; set; }
-        public bool blnTemporaryFiles { get; set; }
-        public bool blnClipboard { get; set; }
-        public bool blnMemoryDumps { get; set; }
-        public bool blnWindowsLogFiles { get; set; }
-        public bool blnWindowsErrorReporting { get; set; }
-        public bool blnDnsCache { get; set; }
-        public bool blnSavedFormInformation { get; set; }
-        public bool blnSavedPasswords { get; set; }
     }
     
 }

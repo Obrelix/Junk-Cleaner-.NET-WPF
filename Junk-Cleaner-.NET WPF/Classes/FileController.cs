@@ -31,7 +31,7 @@ namespace Junk_Cleaner_.NET_WPF
         private ProgressBar progressBar;
         private Thread trdUpdateUI;
         private List<PathElementUI> lstChilds;
-        private List<ErazedElements> lstElements;
+        private List<ElementControler> lstElements;
 
         /// <summary>
         /// Main Constructor
@@ -40,7 +40,7 @@ namespace Junk_Cleaner_.NET_WPF
         /// <param name="files">List of files to be manipulated</param>
         /// <param name="progressBar">The ProgressBar to be updated</param>
         /// <param name="grdDisplay">The DataGrid to be updated</param>
-        public PathController(List<ErazedElements> lstElements,ProgressBar progressBar, Grid grdDisplay, TextBlock txtTotalStatus, TextBlock txtProcessStatus)
+        public PathController(List<ElementControler> lstElements,ProgressBar progressBar, Grid grdDisplay, TextBlock txtTotalStatus, TextBlock txtProcessStatus)
         {
             isEnded = false;
             totalFiles = 0;
@@ -72,16 +72,18 @@ namespace Junk_Cleaner_.NET_WPF
             try
             {
                 parentGrid.Children.Clear();
-                foreach (ErazedElements element in lstElements)
+                foreach (ElementControler ec in lstElements)
                 {
-                    if (element.IsActive)
-                    {
-                        GroupBox grb = GroupBoxInit(element.strName);
-                        foreach (string path in element.lstPaths)
-                            if (new DirectoryInfo(path).Exists)
-                                lstChilds.Add(new PathElementUI(path, progressBar, grb, element));
+                    GroupBox grb = GroupBoxInit(ec.strName);
+                    foreach (ErazedElements element in ec.lstChilds)
+                        if (element.IsActive)
+                        {
+                            
+                            foreach (string path in element.lstPaths)
+                                if (new DirectoryInfo(path).Exists)
+                                    lstChilds.Add(new PathElementUI(path, progressBar, grb, element));
 
-                    }
+                        }
                 }
                 trdUpdateUI = new Thread(new ThreadStart(UpdateUIRunner));
                 trdUpdateUI.IsBackground = true;
@@ -100,13 +102,13 @@ namespace Junk_Cleaner_.NET_WPF
                 parentGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(100, GridUnitType.Auto) });
                 GroupBox gbxElement = new GroupBox()
                 {
-                    Foreground = Brushes.Sienna,
+                    Foreground = Brushes.RosyBrown,
                     Background = new SolidColorBrush { Color = Color.FromRgb(70, 130, 180), Opacity = 0.1 },
                     FontFamily = new FontFamily("Consolas"),
                     FontSize = 12,
                     Header = name,
                     Margin = new Thickness(5,0,5,5),
-                    //BorderThickness = new Thickness(2),
+                    BorderThickness = new Thickness(0.25),
                     //BorderBrush = Brushes.White,
                     HorizontalAlignment = HorizontalAlignment.Stretch
                 };

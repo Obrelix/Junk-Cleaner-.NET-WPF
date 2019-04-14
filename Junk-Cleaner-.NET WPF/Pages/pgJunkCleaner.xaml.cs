@@ -28,45 +28,104 @@ namespace Junk_Cleaner_.NET_WPF
     public partial class pgJunkCleaner : Page
     {
         private List<string> lstPaths = new List<string>();
-        private List<ErazedElements> lstErazedElements;
+        private List<ElementControler> lstElements;
         private PathController fileController;
         public pgJunkCleaner()
         {
             InitializeComponent();
             string strAppDataPath = Directory.GetParent(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)).FullName;
+            string strProgramFilesPath = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86);
 
-            lstErazedElements = new List<ErazedElements>()
+            lstElements = new List<ElementControler>()
             {
-                new ErazedElements("Windows Temp Files", grdAppElements, new List<string>()
+                new ElementControler(grdWinElements,"Internet Explorer",new List<ErazedElements>()
                 {
-                    @"C:\Windows\Temp",
-                    Path.Combine(strAppDataPath, @"Local\Temp")
+                    new ErazedElements("Cache", new List<string>()
+                    {
+                        Path.Combine(strAppDataPath, @"Local\Microsoft\Intern~1")
+                    }),
+                    new ErazedElements("History", new List<string>()
+                    {
+                        Path.Combine(strAppDataPath, @"Local\Microsoft\Windows\History")
+                    }),
+                    new ErazedElements("Cookies",new List<string>()
+                    {
+                        Path.Combine(strAppDataPath, @"Roaming\Microsoft\Windows\Cookies")
+                    }),
+                    new ErazedElements("Temp Files", new List<string>()
+                    {
+                        Path.Combine(strAppDataPath, @"Local\Microsoft\Windows\Tempor~1"),
+                        Path.Combine(strAppDataPath, @"Local\Microsoft\Windows\INetCache")
+                    })
                 }),
-                new ErazedElements("Google Chrome", grdAppElements, new List<string>()
+                new ElementControler(grdWinElements,"Windows Explorer",new List<ErazedElements>()
                 {
-                    Path.Combine(strAppDataPath, @"Local\Google\Chrome\User Data")
+                    new ErazedElements("Recent Documents", new List<string>()
+                    {
+                        Path.Combine(strAppDataPath, @"Roaming\Microsoft\Windows\Recent")
+                    }),
+                    new ErazedElements("Thumbnail Cache", new List<string>()
+                    {
+                        Path.Combine(strAppDataPath, @"Local\Microsoft\Windows\Explorer")
+                    }),
                 }),
-                new ErazedElements("Mozilla Firefox", grdAppElements, new List<string>()
+                new ElementControler(grdWinElements,"System",
+                new List<ErazedElements>()
                 {
-                    Path.Combine(strAppDataPath, @"Local\Mozilla\Firefox\Profiles"),
-                    Path.Combine(strAppDataPath, @"Roaming\Mozilla\Firefox\Profiles")
+                    new ErazedElements("Recycle Bin", new List<string>()
+                    {
+                        @"C:\$Recycle.bin",
+                        //Path.Combine(strAppDataPath, @"Local\Temp")
+                    }),
+                    new ErazedElements("Temporary Files", new List<string>()
+                    {
+                        @"C:\Windows\Temp",
+                        Path.Combine(strAppDataPath, @"Local\Temp")
+                    }),
+                    new ErazedElements("Old Prefetch data", new List<string>()
+                    {
+                        Path.Combine(strAppDataPath, @"C:\Windows\Prefetch")
+                    })
                 }),
-                new ErazedElements("Opera", grdAppElements, new List<string>()
+                new ElementControler(grdAppElements,"Google Chrome",
+                new List<ErazedElements>()
                 {
-                    Path.Combine(strAppDataPath, @"Local\Opera\Opera"),
-                    Path.Combine(strAppDataPath, @"Roaming\Opera\Opera")
+                    new ErazedElements("Profiles",new List<string>()
+                    {
+                        Path.Combine(strAppDataPath, @"Local\Google\Chrome\User Data")
+                    })
                 }),
-                new ErazedElements("Internet Explorer", grdAppElements, new List<string>()
+                new ElementControler(grdAppElements,"Mozilla Firefox",
+                new List<ErazedElements>()
                 {
-                    Path.Combine(strAppDataPath, @"Local\Microsoft\Intern~1"),
-                    Path.Combine(strAppDataPath, @"Local\Microsoft\Windows\History"),
-                    Path.Combine(strAppDataPath, @"Local\Microsoft\Windows\Tempor~1"),
-                    Path.Combine(strAppDataPath, @"Roaming\Microsoft\Windows\Cookies")
+                    new ErazedElements("Profiles", new List<string>()
+                    {
+                        Path.Combine(strAppDataPath, @"Local\Mozilla\Firefox\Profiles"),
+                        Path.Combine(strAppDataPath, @"Roaming\Mozilla\Firefox\Profiles")
+                    })
                 }),
-                new ErazedElements("Macromedia Flash Player", grdAppElements, new List<string>()
+                new ElementControler(grdAppElements,"Opera",
+                new List<ErazedElements>()
                 {
-                    Path.Combine(strAppDataPath, @"Roaming\Macromedia\Flashp~1")
-                })
+                    new ErazedElements("Profiles", new List<string>()
+                    {
+                        Path.Combine(strAppDataPath, @"Local\Opera\Opera"),
+                        Path.Combine(strAppDataPath, @"Roaming\Opera\Opera")
+                    })
+                }),
+                new ElementControler(grdAppElements,"Multimedia",
+                new List<ErazedElements>()
+                {
+                    new ErazedElements("Flash Player", new List<string>()
+                    {
+                        Path.Combine(strAppDataPath, @"Roaming\Macromedia\Flashp~1")
+                    }),
+                    new ErazedElements("Steam", new List<string>()
+                    {
+                        Path.Combine(strProgramFilesPath, @"Steam\dumps"),
+                        Path.Combine(strProgramFilesPath, @"Steam\logs")
+                    })
+                }),
 
             };
         }
@@ -79,7 +138,10 @@ namespace Junk_Cleaner_.NET_WPF
                 gbxAnalysisInfo.Foreground = Globals.LabelColor;
                 expJunkFiles.Foreground = Globals.LabelColor;
                 tbApplications.Foreground = Globals.LabelColor;
-                foreach (ErazedElements element in lstErazedElements) element.changeSkinMode();
+                tbWindows.Foreground = Globals.LabelColor;
+                foreach (ElementControler ec in lstElements)
+                    foreach(ErazedElements element in ec.lstChilds)
+                        element.changeSkinMode();
                 if (!(fileController is null)) fileController.changeSkinMode();
             }
             catch (Exception){throw;}
@@ -94,7 +156,7 @@ namespace Junk_Cleaner_.NET_WPF
             //    {
             //    }
             //}
-            fileController = new PathController(lstErazedElements, pgbFilesStatus, grdFileInfo, txtTotalStatus, txtProcessStatus);
+            fileController = new PathController(lstElements, pgbFilesStatus, grdFileInfo, txtTotalStatus, txtProcessStatus);
         }
 
         private void CheckBox_Checked(object sender, RoutedEventArgs e)

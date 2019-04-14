@@ -110,7 +110,13 @@ namespace Junk_Cleaner_.NET_WPF
                 ManagementClass mgt = new ManagementClass("Win32_Processor");
                 ManagementObjectCollection procs = mgt.GetInstances();
                 foreach (ManagementObject item in procs)
+                {
+                    //List<string> ls = new List<string>();
+                    //foreach (PropertyData prop in item.Properties)
+                    //    if (prop.Value != null)
+                    //        ls.Add(prop.Name + " : " + prop.Value.ToString());
                     return item.Properties["Name"].Value.ToString().Trim();
+                }
 
                 return "Unknown";
             }
@@ -161,12 +167,16 @@ namespace Junk_Cleaner_.NET_WPF
         {
             try
             {
-                ManagementObjectSearcher objvide = new ManagementObjectSearcher("select Name, AdapterRAM from Win32_VideoController");
+                ManagementObjectSearcher objvide = new ManagementObjectSearcher("select * from Win32_VideoController");
 
                 foreach (ManagementObject obj in objvide.Get())
                 {
                     strGPUOutput = obj["Name"].ToString();
                     long VGARam = 0;
+                    //List<string> ls = new List<string>();
+                    //foreach (PropertyData prop in obj.Properties)
+                    //    if(prop.Value != null)
+                    //        ls.Add(prop.Name +" : " + prop.Value.ToString());
                     long.TryParse(obj["AdapterRAM"].ToString(), out VGARam);
                     strGPURamInfo = Globals.sizeFix(VGARam, 0);
                 }

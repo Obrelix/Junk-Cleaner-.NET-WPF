@@ -33,6 +33,7 @@ namespace Junk_Cleaner_.NET_WPF
         private double _height;
         private HardwareInfo hardwareInfo;
         private pgJunkCleaner JunkCleaner;
+        private pgDiscAnalizer DiscAnalizer;
         public event PropertyChangedEventHandler PropertyChanged;
         private List<SkinElement> skins = new List<SkinElement>();
 
@@ -41,9 +42,11 @@ namespace Junk_Cleaner_.NET_WPF
             InitializeComponent();
             hardwareInfo = new HardwareInfo(txtSystemInfo);
             btnDarkSkin.IsChecked = true;
+            btnJunkCleaner.IsChecked = true;
             SkinsInit();
             Globals.ChangeSkinMode(skins[(int)SkinMode.Dark]);
             JunkCleaner = new pgJunkCleaner();
+            DiscAnalizer = new pgDiscAnalizer();
             frmNavigate.Navigate(JunkCleaner);
             ChangeSkin(SkinMode.Dark);
         }
@@ -109,8 +112,12 @@ namespace Junk_Cleaner_.NET_WPF
                 switch (menu.Name)
                 {
                     case "btnJunkCleaner":
+                        btnDiskAnalyzer.IsChecked = false;
+                        frmNavigate.Navigate(JunkCleaner);
                         break;
                     case "btnDiskAnalyzer":
+                        btnJunkCleaner.IsChecked = false;
+                        frmNavigate.Navigate(DiscAnalizer);
                         break;
                     case "btnDarkSkin":
                         btnLightSkin.IsChecked = false;

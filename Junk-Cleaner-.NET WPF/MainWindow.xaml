@@ -157,7 +157,7 @@
         </Menu>
         <GroupBox x:Name="gbxSystem" Header="System Information" 
                   Foreground="SteelBlue" Grid.Row="1" Grid.Column="1" 
-                  Margin="0,5" BorderThickness="1" BorderBrush="White" FontWeight="Bold">
+                  Margin="0,5" BorderThickness="0.5" BorderBrush="White" FontWeight="Bold">
             <GroupBox.Background>
                 <SolidColorBrush Color="#FF0081B2" Opacity="0.1"/>
             </GroupBox.Background>
@@ -166,7 +166,7 @@
                        Foreground="White" FontFamily="Consolas" HorizontalAlignment="Center" 
                        Grid.Row="1" Grid.Column="1" FontWeight="Normal"/>
         </GroupBox>
-        <Frame x:Name="frmNavigate" Content="Frame" 
+        <Frame x:Name="frmNavigate"  MinWidth="{Binding ElementName=gbxSystem, Path=ActualWidth, Mode=OneWay}" MinHeight="250"
                NavigationUIVisibility="Hidden" Margin="0" VerticalAlignment="Top" 
                SizeChanged="FrmNavigate_SizeChanged" HorizontalAlignment="Center" Grid.Row="2" Grid.Column="1"/>
 
