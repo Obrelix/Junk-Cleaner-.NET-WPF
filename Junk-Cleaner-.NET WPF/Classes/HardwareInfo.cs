@@ -18,7 +18,7 @@ namespace Junk_Cleaner_.NET_WPF
         private Thread trdCPUInfo;
         private Thread trdGPUInfo;
         private TextBlock textBlock;
-        private string strGPUOutput;
+        private List<string> strGPUOutput;
         private string strCPUOutput;
         private string strOSFullName;
         private string strServicePack;
@@ -26,11 +26,11 @@ namespace Junk_Cleaner_.NET_WPF
         private string strProcessorBits;
         private string strVersionString;
         private string strRamInfo;
-        private string strGPURamInfo;
+        private List<string> strGPURamInfo;
 
         public HardwareInfo(TextBlock textBlock)
         {
-            strGPUOutput = string.Empty;
+            strGPUOutput = new List<string>();
             strCPUOutput = string.Empty;
             strOSFullName = string.Empty;
             strServicePack = string.Empty;
@@ -38,7 +38,7 @@ namespace Junk_Cleaner_.NET_WPF
             strVersionString = string.Empty;
             strProcessorBits = string.Empty;
             strRamInfo = string.Empty;
-            strGPURamInfo = string.Empty;
+            strGPURamInfo = new List<string>();
             this.textBlock = textBlock;
             SetOutputString();
             run();
@@ -148,11 +148,17 @@ namespace Junk_Cleaner_.NET_WPF
                 textBlock.Inlines.Add(Globals.coloredRun("RAM : ", Globals.LabelColor));
                 textBlock.Inlines.Add(Globals.coloredRun(strRamInfo + " ", Globals.ValueColor));
                 textBlock.Inlines.Add(new Run(Environment.NewLine));
-                textBlock.Inlines.Add(Globals.coloredRun("VGA : ", Globals.LabelColor));
-                textBlock.Inlines.Add(Globals.coloredRun(strGPUOutput + " ", Globals.ValueColor));
-                textBlock.Inlines.Add(Globals.coloredRun("[ Ram : ", Globals.LabelColor));
-                textBlock.Inlines.Add(Globals.coloredRun(strGPURamInfo + " ", Globals.ValueColor));
-                textBlock.Inlines.Add(Globals.coloredRun(" ]", Globals.LabelColor));
+                for (int i = 0; i < strGPUOutput.Count; i++)
+                {
+                    string vga = strGPUOutput[i];
+                    string ram = string.Empty;
+                    if (strGPURamInfo.Count > i) ram = strGPURamInfo[i];
+                    textBlock.Inlines.Add(Globals.coloredRun("VGA : ", Globals.LabelColor));
+                    textBlock.Inlines.Add(Globals.coloredRun(vga + " ", Globals.ValueColor));
+                    textBlock.Inlines.Add(Globals.coloredRun("[ Ram : ", Globals.LabelColor));
+                    textBlock.Inlines.Add(Globals.coloredRun(ram + " ", Globals.ValueColor));
+                    textBlock.Inlines.Add(Globals.coloredRun(" ]", Globals.LabelColor));
+                }
                 //StringBuilder sb = new StringBuilder(String.Empty);
                 //sb.AppendLine(String.Format("OS  : {0} {1} {2} [ {3} ]", strOSFullName, strServicePack, strOSBits, strVersionString));
                 //sb.AppendLine(String.Format("CPU : {0} {1}", strCPUOutput, strProcessorBits));
@@ -171,14 +177,14 @@ namespace Junk_Cleaner_.NET_WPF
 
                 foreach (ManagementObject obj in objvide.Get())
                 {
-                    strGPUOutput = obj["Name"].ToString();
+                    strGPUOutput.Add(obj["Name"].ToString());
                     long VGARam = 0;
                     //List<string> ls = new List<string>();
                     //foreach (PropertyData prop in obj.Properties)
                     //    if(prop.Value != null)
                     //        ls.Add(prop.Name +" : " + prop.Value.ToString());
                     long.TryParse(obj["AdapterRAM"].ToString(), out VGARam);
-                    strGPURamInfo = Globals.sizeFix(VGARam, 0);
+                    strGPURamInfo.Add(Globals.sizeFix(VGARam, 0));
                 }
             }
             catch (Exception)
